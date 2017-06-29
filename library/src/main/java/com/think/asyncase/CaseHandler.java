@@ -50,7 +50,7 @@ public class CaseHandler {
                 synchronized (mLockObject) {
                     while (isPause) {
                         try {
-                            Log.v(TAG, "wait " + uCase.getName());
+                            Log.v(TAG, "wait " + uCase);
                             mLockObject.wait();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
