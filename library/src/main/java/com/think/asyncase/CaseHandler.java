@@ -1,10 +1,14 @@
 package com.think.asyncase;
 
+import android.util.Log;
+
 /**
  * Created by borney on 6/29/17.
  */
 
 public class CaseHandler {
+    private static final String TAG = "CaseHandler";
+
     private static CaseHandler INSTANCE;
 
     private CaseScheduler mCaseScheduler;
@@ -46,6 +50,7 @@ public class CaseHandler {
                 synchronized (mLockObject) {
                     while (isPause) {
                         try {
+                            Log.v(TAG, "wait " + uCase.getName());
                             mLockObject.wait();
                         } catch (InterruptedException e) {
                             e.printStackTrace();

@@ -2,7 +2,7 @@ package com.think.asyncase;
 
 import android.os.Handler;
 
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +26,7 @@ class CaseThreadPoolScheduler implements CaseScheduler {
 
     CaseThreadPoolScheduler() {
         mThreadPoolExecutor = new ThreadPoolExecutor(POOL_SIZE, MAX_POOL_SIZE, TIMEOUT,
-                TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(POOL_SIZE),
+                TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
                 new SchedulerThreadFactory());
     }
 
