@@ -10,6 +10,7 @@ public abstract class Case<P extends Case.RequestValue, R extends Case.ResponseV
     private static final AtomicInteger caseNumber = new AtomicInteger(1);
     private String mName;
     private int mId;
+    private volatile boolean isCancel;
     private P mRequestValues;
     private CaseCallback<R> mCaseCallback;
 
@@ -48,6 +49,14 @@ public abstract class Case<P extends Case.RequestValue, R extends Case.ResponseV
 
     public void notifyError() {
         mCaseCallback.onError();
+    }
+
+    public boolean isCancel() {
+        return isCancel;
+    }
+
+    public void cancel() {
+        isCancel = true;
     }
 
     void run() {
