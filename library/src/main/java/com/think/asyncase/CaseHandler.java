@@ -2,6 +2,8 @@ package com.think.asyncase;
 
 import android.util.Log;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by borney on 6/29/17.
  */
@@ -73,22 +75,28 @@ public class CaseHandler {
 
     private static class UiCallbackWrapper<R extends Case.ResponseValue> implements
             Case.CaseCallback<R> {
-        private Case.CaseCallback<R> mCaseCallback;
+        private WeakReference<Case.CaseCallback<R>> mCaseCallback;
         private CaseHandler mCaseHandler;
 
         UiCallbackWrapper(Case.CaseCallback<R> caseCallback, CaseHandler caseHandler) {
-            mCaseCallback = caseCallback;
+            mCaseCallback = new WeakReference<>(caseCallback);
             mCaseHandler = caseHandler;
         }
 
         @Override
         public void onSuccess(R response) {
-            mCaseHandler.notifySuccess(response, mCaseCallback);
+            Case.CaseCallback<R> callback = mCaseCallback.get();
+            if (callback != null) {
+                mCaseHandler.notifySuccess(response, callback);
+            }
         }
 
         @Override
         public void onError() {
-            mCaseHandler.notifyError(mCaseCallback);
+            Case.CaseCallback<R> callback = mCaseCallback.get();
+            if (callback != null) {
+                mCaseHandler.notifyError(callback);
+            }
         }
     }
 }
