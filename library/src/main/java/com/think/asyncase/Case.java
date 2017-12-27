@@ -47,8 +47,8 @@ public abstract class Case<P extends Case.RequestValue, R extends Case.ResponseV
         mCaseCallback.onSuccess(reponse);
     }
 
-    public void notifyError() {
-        mCaseCallback.onError();
+    public <E extends FailureValue> void notifyError(E ex) {
+        mCaseCallback.onFailure(ex);
     }
 
     public boolean isCancel() {
@@ -76,9 +76,12 @@ public abstract class Case<P extends Case.RequestValue, R extends Case.ResponseV
     public interface ResponseValue {
     }
 
+    public interface FailureValue {
+    }
+
     public interface CaseCallback<R> {
         void onSuccess(R response);
 
-        void onError();
+        <E extends FailureValue> void onFailure(E ex);
     }
 }

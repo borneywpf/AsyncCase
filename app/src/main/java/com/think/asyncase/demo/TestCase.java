@@ -30,7 +30,8 @@ public class TestCase extends Case<TestCase.TestRequestValue, TestCase.TestRespo
 
         notifySuccess(new TestResponseValue(getName()));
 
-        notifyError();
+        notifyError(new FailureValue() {
+        });
     }
 
     public static class TestRequestValue implements Case.RequestValue {

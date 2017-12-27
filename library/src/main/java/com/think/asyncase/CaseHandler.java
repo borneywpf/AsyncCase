@@ -64,13 +64,12 @@ public class CaseHandler {
         });
     }
 
-    <R extends Case.ResponseValue> void notifySuccess(final R response,
-            final Case.CaseCallback<R> caseCallback) {
+    <R extends Case.ResponseValue> void notifySuccess(R response, Case.CaseCallback<R> caseCallback) {
         mCaseScheduler.notifyReponse(response, caseCallback);
     }
 
-    <R extends Case.ResponseValue> void notifyError(final Case.CaseCallback<R> caseCallback) {
-        mCaseScheduler.notifyError(caseCallback);
+    <R extends Case.ResponseValue, E extends Case.FailureValue> void notifyError(E ex, Case.CaseCallback<R> caseCallback) {
+        mCaseScheduler.notifyError(ex, caseCallback);
     }
 
     private static class UiCallbackWrapper<R extends Case.ResponseValue> implements
@@ -92,10 +91,10 @@ public class CaseHandler {
         }
 
         @Override
-        public void onError() {
+        public <E extends Case.FailureValue> void onFailure(E ex) {
             Case.CaseCallback<R> callback = mCaseCallback.get();
             if (callback != null) {
-                mCaseHandler.notifyError(callback);
+                mCaseHandler.notifyError(ex, callback);
             }
         }
     }

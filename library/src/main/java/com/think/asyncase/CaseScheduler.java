@@ -7,8 +7,7 @@ package com.think.asyncase;
 public interface CaseScheduler {
     void execute(Runnable runnable);
 
-    <P extends Case.ResponseValue> void notifyReponse(final P reponse,
-            final Case.CaseCallback<P> caseCallback);
+    <P extends Case.ResponseValue> void notifyReponse(P reponse, Case.CaseCallback<P> caseCallback);
 
-    <P extends Case.ResponseValue> void notifyError(final Case.CaseCallback<P> caseCallback);
+    <P extends Case.ResponseValue, E extends Case.FailureValue> void notifyError(E ex, Case.CaseCallback<P> caseCallback);
 }

@@ -12,7 +12,7 @@ public class DefaultCaseCallback<R extends Case.ResponseValue> implements Case.C
     }
 
     @Override
-    public void onError() {
+    public <E extends Case.FailureValue> void onFailure(E ex) {
 
     }
 }

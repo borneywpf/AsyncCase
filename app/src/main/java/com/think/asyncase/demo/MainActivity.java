@@ -52,8 +52,8 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onError() {
-                            Log.d("wangpf", "onError thread: " + Thread.currentThread().getName());
+                        public <E extends Case.FailureValue> void onFailure(E ex) {
+                            Log.d("wangpf", "onFailure thread: " + Thread.currentThread().getName());
                         }
                     });
         }

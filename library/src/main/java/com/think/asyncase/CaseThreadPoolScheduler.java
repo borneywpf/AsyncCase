@@ -47,12 +47,12 @@ class CaseThreadPoolScheduler implements CaseScheduler {
     }
 
     @Override
-    public <P extends Case.ResponseValue> void notifyError(
+    public <P extends Case.ResponseValue, E extends Case.FailureValue> void notifyError(final E ex,
             final Case.CaseCallback<P> caseCallback) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                caseCallback.onError();
+                caseCallback.onFailure(ex);
             }
         });
     }
