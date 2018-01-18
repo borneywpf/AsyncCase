@@ -65,7 +65,7 @@ public abstract class Case<T> {
         return isAttachOnLooperThread;
     }
 
-    final void run(Scheduler.AsyncGetNotify<T> notify) {
+    final void runCase(Scheduler.AsyncGetNotify<T> notify) {
         atomicNotify.set(notify);
         executeCase();
     }
@@ -95,7 +95,7 @@ public abstract class Case<T> {
     public void notifySuccess(T obj) {
         Scheduler.AsyncGetNotify<T> notify = getNotify();
         if (notify == null) {
-            throw new IllegalStateException("notify before case run.");
+            throw new IllegalStateException("notify before case runCase.");
         }
         if (callback == null) {
             notify.notify(obj);
@@ -113,7 +113,16 @@ public abstract class Case<T> {
         return scheduler.get(new Scheduler.AsyncGetRunnable<V>() {
             @Override
             public void run(Scheduler.AsyncGetNotify<V> notify) {
-                dependCase.run(notify);
+                dependCase.runCase(notify);
+            }
+        });
+    }
+
+    public final T get(Scheduler scheduler) throws ExecutionException, InterruptedException {
+        return scheduler.get(new Scheduler.AsyncGetRunnable<T>() {
+            @Override
+            public void run(Scheduler.AsyncGetNotify<T> notify) {
+                runCase(notify);
             }
         });
     }

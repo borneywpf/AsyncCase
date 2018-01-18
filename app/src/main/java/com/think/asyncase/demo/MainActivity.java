@@ -4,8 +4,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.think.futurecase.Case;
 import com.think.futurecase.CaseHandler;
+
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,18 +48,37 @@ public class MainActivity extends AppCompatActivity {
 //        });
 //        Log.w("wpf", "run in main...." + getFetureCase);
 
-        new Thread("get-sync-main") {
+//        new Thread("get-sync-main") {
+//            @Override
+//            public void run() {
+//                super.run();
+//                final TestGetFetureCase syncGetFetureCase = new TestGetFetureCase();
+//                handler.execute(syncGetFetureCase, new Case.CaseCallback<String>() {
+//                    @Override
+//                    public void onSuccess(String obj) {
+//                        Log.d("wpf", syncGetFetureCase.getDescription("onSuccess") + " result:" + obj);
+//                    }
+//                });
+//                Log.e("wpf", "run in " + getName() + " ..." + syncGetFetureCase);
+//            }
+//        }.start();
+
+        new Thread("case-get-sync") {
             @Override
             public void run() {
                 super.run();
-                final TestGetFetureCase syncGetFetureCase = new TestGetFetureCase();
-                handler.execute(syncGetFetureCase, new Case.CaseCallback<String>() {
-                    @Override
-                    public void onSuccess(String obj) {
-                        Log.d("wpf", syncGetFetureCase.getDescription("onSuccess") + " result:" + obj);
-                    }
-                });
-                Log.e("wpf", "run in " + getName() + " ..." + syncGetFetureCase);
+                TestFutureCase futureCase = new TestFutureCase();
+                try {
+                    String o = futureCase.get(CaseHandler.create().getScheduler());
+                    Log.e("wpf", futureCase + " back(" + o + ")");
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                    Log.w("wpf", e);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Log.w("wpf", e);
+                }
+                Log.e("wpf", "run in " + getName() + " ..." + futureCase);
             }
         }.start();
 

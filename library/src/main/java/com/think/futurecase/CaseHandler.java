@@ -22,11 +22,15 @@ public class CaseHandler {
         return sInstance;
     }
 
+    public Scheduler getScheduler() {
+        return scheduler;
+    }
+
     public <T> void execute(final Case<T> uCase, Case.CaseCallback<T> callback) {
         Future<T> future = scheduler.execute(new Scheduler.AsyncGetRunnable<T>() {
             @Override
             public void run(Scheduler.AsyncGetNotify<T> notify) {
-                uCase.run(notify);
+                uCase.runCase(notify);
             }
         });
 
