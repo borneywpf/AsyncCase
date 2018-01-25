@@ -38,14 +38,16 @@ public class CaseHandler {
                 new CasebackWapper<>(uCase, callback, this));
 
         if (!attachOnLooperThread) {
+            T obj = null;
             try {
-                callback.onSuccess(future.get());
+                obj = future.get();
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                callback.onSuccess(null);
             } catch (ExecutionException e) {
                 e.printStackTrace();
-                callback.onSuccess(null);
+            }
+            if (callback != null) {
+                callback.onSuccess(obj);
             }
         }
     }
@@ -57,12 +59,8 @@ public class CaseHandler {
             uCase.getHandler().post(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        callback.onSuccess(uCase.getFuture().get());
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
+                    if (callback != null) {
+                        callback.onSuccess(obj);
                     }
                 }
             });
