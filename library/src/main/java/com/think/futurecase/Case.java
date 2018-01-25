@@ -65,7 +65,7 @@ public abstract class Case<T> {
         return isAttachOnLooperThread;
     }
 
-    final void runCase(Scheduler.AsyncGetNotify<T> notify) {
+    synchronized final void runCase(Scheduler.AsyncGetNotify<T> notify) {
         atomicNotify.set(notify);
         executeCase();
     }

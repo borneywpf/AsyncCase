@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -35,19 +36,21 @@ public class CaseScheduler implements Scheduler {
         return submit(new Callable<T>() {
             @Override
             public T call() throws Exception {
-                final AtomicReference<T> atomResult = new AtomicReference<>();
+                final AtomicReference<T> atomicResult = new AtomicReference<>();
+                final AtomicBoolean atomicNotified = new AtomicBoolean(false);
                 final Object lock = new Object();
                 AsyncGetNotify<T> asyncGetNotify = new AsyncGetNotify<T>() {
                     @Override
                     public void notify(T result) {
-                        atomResult.set(result);
+                        atomicResult.set(result);
+                        atomicNotified.set(true);
                         synchronized (lock) {
                             lock.notifyAll();
                         }
                     }
                 };
                 asyncGetRunnable.run(asyncGetNotify);
-                while (atomResult.get() == null) {
+                while (!atomicNotified.get()) {
                     synchronized (lock) {
                         try {
                             lock.wait();
@@ -57,7 +60,7 @@ public class CaseScheduler implements Scheduler {
                     }
                 }
 
-                return atomResult.get();
+                return atomicResult.get();
             }
         });
     }
