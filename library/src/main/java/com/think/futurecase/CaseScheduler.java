@@ -28,7 +28,7 @@ public class CaseScheduler implements Scheduler {
 
     @Override
     public Future<?> submit(final Runnable runnable) {
-        return executor.submit(runnable);
+        return submit(Executors.callable(runnable));
     }
 
     @Override

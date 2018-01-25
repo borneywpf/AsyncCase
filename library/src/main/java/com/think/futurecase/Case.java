@@ -14,7 +14,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class Case<T> {
     private static final AtomicInteger caseNumber = new AtomicInteger(1);
-    private final AtomicReference<Scheduler.AsyncGetNotify<T>> atomicNotify = new AtomicReference<>();
+    private final AtomicReference<Scheduler.AsyncGetNotify<T>> atomicNotify =
+            new AtomicReference<>();
     private String name;
     private int id;
     private CaseCallback<T> callback;
@@ -37,7 +38,8 @@ public abstract class Case<T> {
         this.name = name == null ? "Case-" + id : name;
     }
 
-    boolean attachOnLooperThread(Future<T> future, Scheduler scheduler, CaseCallback<T> callback) {
+    boolean attachOnLooperThread(Future<T> future, Scheduler scheduler,
+            CaseCallback<T> callback) {
         this.future = future;
         this.scheduler = scheduler;
         this.callback = callback;
@@ -92,7 +94,7 @@ public abstract class Case<T> {
 
     public abstract void executeCase();
 
-    public void notifySuccess(T obj) {
+    public synchronized void notifySuccess(T obj) {
         Scheduler.AsyncGetNotify<T> notify = getNotify();
         if (notify == null) {
             throw new IllegalStateException("notify before case runCase.");
@@ -109,7 +111,8 @@ public abstract class Case<T> {
         return response;
     }
 
-    public final <V> V get(final Case<V> dependCase) throws ExecutionException, InterruptedException {
+    public final <V> V get(final Case<V> dependCase)
+            throws ExecutionException, InterruptedException {
         return scheduler.get(new Scheduler.AsyncGetRunnable<V>() {
             @Override
             public void run(Scheduler.AsyncGetNotify<V> notify) {
