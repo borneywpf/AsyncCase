@@ -1,4 +1,4 @@
-package com.think.futurecase;
+package com.gionee.androiddebug.async;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -7,10 +7,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-
-/**
- * Created by borney on 1/17/18.
- */
 
 public abstract class Case<T> {
     private static final AtomicInteger caseNumber = new AtomicInteger(1);
@@ -38,8 +34,7 @@ public abstract class Case<T> {
         this.name = name == null ? "Case-" + id : name;
     }
 
-    boolean attachOnLooperThread(Future<T> future, Scheduler scheduler,
-            CaseCallback<T> callback) {
+    boolean attachOnLooperThread(Future<T> future, Scheduler scheduler, CaseCallback<T> callback) {
         this.future = future;
         this.scheduler = scheduler;
         this.callback = callback;
@@ -67,8 +62,13 @@ public abstract class Case<T> {
         return isAttachOnLooperThread;
     }
 
-    synchronized final void runCase(Scheduler.AsyncGetNotify<T> notify) {
-        atomicNotify.set(notify);
+    final synchronized void runCase(Scheduler.AsyncGetNotify<T> notify) {
+        while (true) {
+            Scheduler.AsyncGetNotify<T> old = atomicNotify.get();
+            if (atomicNotify.compareAndSet(old, notify)) {
+                break;
+            }
+        }
         executeCase();
     }
 
@@ -88,29 +88,46 @@ public abstract class Case<T> {
         return name;
     }
 
+    /**
+     * return case id
+     *
+     * @return id
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * execute case in backgraound thread
+     */
     public abstract void executeCase();
 
-    public synchronized void notifySuccess(T obj) {
+    /**
+     * notify execute result for this case
+     */
+    public void notifySuccess(T obj) {
         Scheduler.AsyncGetNotify<T> notify = getNotify();
         if (notify == null) {
             throw new IllegalStateException("notify before case runCase.");
         }
-        if (callback == null) {
-            notify.notify(obj);
-        } else {
+
+        notify.notify(obj);
+
+        if (callback != null) {
             callback.onSuccess(obj);
         }
-        response = obj;
     }
 
+    /**
+     * return case execute result
+     */
     public T get() {
         return response;
     }
 
+    /**
+     * get depend case execute result and block current case run
+     */
     public final <V> V get(final Case<V> dependCase)
             throws ExecutionException, InterruptedException {
         return scheduler.get(new Scheduler.AsyncGetRunnable<V>() {
@@ -121,18 +138,22 @@ public abstract class Case<T> {
         });
     }
 
+    /**
+     * get execute result and block invoke thread, proposed not to call in the main thread
+     */
     public final T get(Scheduler scheduler) throws ExecutionException, InterruptedException {
-        return scheduler.get(new Scheduler.AsyncGetRunnable<T>() {
+        response = scheduler.get(new Scheduler.AsyncGetRunnable<T>() {
             @Override
             public void run(Scheduler.AsyncGetNotify<T> notify) {
                 runCase(notify);
             }
         });
+        return response;
     }
 
     @Override
     public String toString() {
-        return "Case{" +
+        return getClass().getSimpleName() + "{" +
                 ", name='" + name + '\'' +
                 ", id=" + id +
                 '}';
